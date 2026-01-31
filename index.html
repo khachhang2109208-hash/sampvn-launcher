@@ -1,170 +1,113 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Phân tích cầu Tài Xỉu</title>
+  <meta charset="UTF-8">
+  <title>Phân tích cầu Tài Xỉu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-body{
-  margin:0;
-  background:#000;
-  color:#fff;
-  font-family:-apple-system,BlinkMacSystemFont;
-  display:flex;
-  justify-content:center;
-}
-.app{
-  width:92%;
-  max-width:420px;
-  margin-top:20px;
-  background:#0b0b0b;
-  border-radius:20px;
-  padding:20px;
-  box-shadow:0 0 25px rgba(255,215,0,.35);
-}
-h1{text-align:center;color:gold;}
-input{
-  width:100%;
-  padding:12px;
-  border-radius:12px;
-  border:none;
-  font-size:16px;
-}
-.btn{
-  width:100%;
-  padding:14px;
-  margin-top:14px;
-  border:none;
-  border-radius:14px;
-  background:linear-gradient(90deg,gold,orange);
-  font-size:18px;
-  font-weight:bold;
-}
-.card{
-  margin-top:16px;
-  background:#111;
-  padding:14px;
-  border-radius:14px;
-}
-</style>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      padding: 15px;
+    }
+    button {
+      padding: 10px 14px;
+      margin: 5px 0;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    input {
+      padding: 8px;
+      font-size: 16px;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    #output {
+      margin-top: 15px;
+      padding: 10px;
+      background: #1e1e1e;
+      border-radius: 8px;
+    }
+  </style>
 </head>
 
 <body>
-<div class="app">
-<h1>📊 Phân tích cầu</h1>
 
-<input id="input" placeholder="VD: T X T T X T T X">
+  <h2>🎲 Phân tích cầu Tài Xỉu</h2>
 
-<button class="btn" onclick="analyze()">PHÂN TÍCH</button>
-<button class="btn" onclick="toggleMusic()">🎵 BẬT / TẮT NHẠC</button>
-<div class="card" id="output">Chưa có dữ liệu</div>
-</div>
+  <!-- NHẠC -->
+  <div id="musicStatus">🔇 Nhạc: Tắt</div>
+  <button onclick="toggleMusic()">🎵 Bật / Tắt nhạc</button>
 
-<script>
-function analyze(){
-  let raw = document.getElementById("input").value.toUpperCase();
-  let arr = raw.replace(/[^TX]/g,"").split("");
-  let n = arr.length;
-
-  if(n < 6){
-    output("⚠️ Cần ít nhất 6 ván để phân tích cầu nâng cao");
-    return;
-  }
-
-  let scores = [];
-  let last = arr[n-1];
-
-  // 1️⃣ BỆT
-  let streak = 1;
-  for(let i=n-1;i>0;i--){
-    if(arr[i]===arr[i-1]) streak++;
-    else break;
-  }
-  if(streak>=3){
-    scores.push({
-      name:`🔥 Bệt ${arr[n-1]==="T"?"TÀI":"XỈU"} (${streak})`,
-      predict:last,
-      score:70 + streak*3
-    });
-  }
-
-  // 2️⃣ ĐẢO 1–1
-  let isAlt=true;
-  for(let i=n-1;i>n-6;i--){
-    if(arr[i]===arr[i-1]) isAlt=false;
-  }
-  if(isAlt){
-    scores.push({
-      name:"⚡ Cầu đảo 1–1",
-      predict:last==="T"?"XỈU":"TÀI",
-      score:72
-    });
-  }
-
-  // 3️⃣ CẦU 2–1 / 3–1
-  let seq = arr.slice(-6).join("");
-  if(/(TTX){1,}/.test(seq) || /(XXT){1,}/.test(seq)){
-    scores.push({
-      name:"🔁 Cầu 2–1",
-      predict:last==="T"?"XỈU":"TÀI",
-      score:74
-    });
-  }
-  if(/(TTTX){1,}/.test(seq) || /(XXXT){1,}/.test(seq)){
-    scores.push({
-      name:"🔁 Cầu 3–1",
-      predict:last==="T"?"XỈU":"TÀI",
-      score:78
-    });
-  }
-
-  // 4️⃣ THỐNG KÊ NGHIÊNG
-  let t = arr.filter(x=>x==="T").length;
-  let x = n - t;
-  scores.push({
-    name:"📊 Thống kê nghiêng",
-    predict: t>x ? "TÀI" : "XỈU",
-    score: 60 + Math.abs(t-x)*2
-  });
-
-  // CHỌN CẦU MẠNH NHẤT
-  scores.sort((a,b)=>b.score-a.score);
-  let best = scores[0];
-
-  let html = `
-  🧠 Cầu mạnh nhất:<br>
-  <b>${best.name}</b><br><br>
-  🔮 Gợi ý ván sau:
-  <b style="color:gold">${best.predict}</b><br>
-  📈 Độ tin cậy: <b>${best.score}%</b><br><br>
   <hr>
-  <b>So sánh cầu:</b><br>
-  `;
 
-  scores.forEach(s=>{
-    html += `• ${s.name}: ${s.predict} (${s.score}%)<br>`;
-  });
+  <!-- NHẬP CẦU -->
+  <p>Nhập lịch sử (T = Tài, X = Xỉu) — ví dụ: <b>T,X,T,T,X</b></p>
+  <input id="history" placeholder="T,X,T,X,X,T">
+  <button onclick="analyze()">📊 Phân tích</button>
 
-  document.getElementById("output").innerHTML = html;
-}
+  <div id="output"></div>
 
-function output(txt){
-  document.getElementById("output").innerText = txt;
-}
-  let music = new Audio("https://cdn.pixabay.com/audio/2022/03/15/audio_4c8b9a7b8a.mp3");
-music.loop = true;
-music.volume = 0.4;
+  <script>
+    // ====== NHẠC NỀN ======
+    let music = new Audio(
+      "https://cdn.pixabay.com/audio/2022/03/15/audio_45b46c1c18.mp3"
+    );
+    music.loop = true;
+    music.volume = 0.5;
 
-function toggleMusic(){
-  if(music.paused){
-    music.play();
-    alert("🎵 Đã bật nhạc");
-  }else{
-    music.pause();
-    alert("🔇 Đã tắt nhạc");
-  }
-}
-</script>
+    function toggleMusic() {
+      if (music.paused) {
+        music.play().catch(() => {});
+        document.getElementById("musicStatus").innerText = "🔊 Nhạc: Đang bật";
+      } else {
+        music.pause();
+        document.getElementById("musicStatus").innerText = "🔇 Nhạc: Tắt";
+      }
+    }
+
+    // ====== PHÂN TÍCH CẦU ======
+    function analyze() {
+      let raw = document.getElementById("history").value.toUpperCase();
+      let arr = raw.split(",").map(x => x.trim()).filter(x => x === "T" || x === "X");
+
+      if (arr.length < 3) {
+        output("❌ Nhập ít nhất 3 ván (T hoặc X)");
+        return;
+      }
+
+      let last = arr[arr.length - 1];
+      let tai = 0, xiu = 0;
+
+      for (let i = 1; i < arr.length; i++) {
+        if (arr[i] === arr[i - 1]) {
+          arr[i] === "T" ? tai++ : xiu++;
+        }
+      }
+
+      let predict = tai > xiu ? "TÀI" : "XỈU";
+      let confidence = Math.min(90, 55 + Math.abs(tai - xiu) * 5);
+
+      let html = `
+        🧠 <b>Phân tích cầu:</b><br><br>
+        • Ván gần nhất: <b>${last === "T" ? "TÀI" : "XỈU"}</b><br>
+        • Cầu bệt Tài: ${tai}<br>
+        • Cầu bệt Xỉu: ${xiu}<br><br>
+
+        🎯 <b>Gợi ý ván sau:</b><br>
+        <span style="color:gold;font-size:20px;"><b>${predict}</b></span><br>
+        📈 Độ tin cậy: <b>${confidence}%</b>
+      `;
+
+      document.getElementById("output").innerHTML = html;
+    }
+
+    function output(txt) {
+      document.getElementById("output").innerText = txt;
+    }
+  </script>
+
 </body>
 </html>
