@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SA-MP.VN Launcher</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f172a">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg,#020617,#020617);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .app {
+      width: 92%;
+      max-width: 420px;
+      background: #020617;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 0 40px rgba(0,0,0,.7);
+    }
+    h1 {
+      text-align: center;
+      margin: 0 0 10px;
+      color: #38bdf8;
+    }
+    .server {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      border-radius: 12px;
+      border: none;
+      background: #38bdf8;
+      color: #020617;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .btn.secondary {
+      background: #020617;
+      color: #38bdf8;
+      border: 1px solid #38bdf8;
+    }
+    footer {
+      text-align: center;
+      font-size: 12px;
+      opacity: .6;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <h1>SA-MP.VN</h1>
+
+    <div class="server">
+      <b>Server:</b> sa-mp.vn<br>
+      <b>Status:</b> 🟢 Online<br>
+      <b>Players:</b> 999/1000
+      <button class="btn" onclick="alert('iOS không cho mở client trực tiếp 😅')">
+        PLAY
+      </button>
+    </div>
+
+    <button class="btn secondary">📊 Thống kê</button>
+    <button class="btn secondary">🎲 Tài Xỉu</button>
+    <button class="btn secondary">⚙️ Cài đặt</button>
+
+    <footer>
+      Launcher PWA • iOS 26.1
+    </footer>
+  </div>
+</body>
+</html>
