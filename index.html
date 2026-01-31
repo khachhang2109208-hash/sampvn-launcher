@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SA-MP.VN Casino Tool</title>
+<title>Phân tích cầu Tài Xỉu</title>
 
 <style>
 body{
   margin:0;
-  font-family:-apple-system,BlinkMacSystemFont;
   background:#000;
   color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont;
   display:flex;
   justify-content:center;
 }
@@ -21,17 +21,20 @@ body{
   background:#0b0b0b;
   border-radius:20px;
   padding:20px;
-  box-shadow:0 0 30px rgba(255,215,0,.25);
+  box-shadow:0 0 25px rgba(255,215,0,.35);
 }
-h1{
-  text-align:center;
-  color:gold;
-  text-shadow:0 0 10px gold;
+h1{text-align:center;color:gold;}
+input{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:none;
+  font-size:16px;
 }
 .btn{
   width:100%;
   padding:14px;
-  margin-top:12px;
+  margin-top:14px;
   border:none;
   border-radius:14px;
   background:linear-gradient(90deg,gold,orange);
@@ -40,92 +43,114 @@ h1{
 }
 .card{
   margin-top:16px;
-  padding:14px;
   background:#111;
+  padding:14px;
   border-radius:14px;
 }
-.bar{
-  height:14px;
-  border-radius:10px;
-  margin-top:6px;
-}
-.tai{background:gold;}
-.xiu{background:#38bdf8;}
-.small{font-size:13px;opacity:.85}
 </style>
 </head>
 
 <body>
 <div class="app">
-<h1>🎰 SA-MP.VN CASINO</h1>
+<h1>📊 Phân tích cầu</h1>
 
-<button class="btn" onclick="roll()">LẮC</button>
+<input id="input" placeholder="VD: T X T T X T T X">
 
-<div class="card" id="result">Nhấn LẮC để bắt đầu</div>
+<button class="btn" onclick="analyze()">PHÂN TÍCH</button>
 
-<div class="card small" id="pattern"></div>
-
-<div class="card">
-<b>📊 Thống kê 100 ván</b>
-<div class="small" id="stats"></div>
-<div class="bar tai" id="barTai"></div>
-<div class="bar xiu" id="barXiu"></div>
-</div>
-
-<div class="card small" id="history"></div>
+<div class="card" id="output">Chưa có dữ liệu</div>
 </div>
 
 <script>
-let history = JSON.parse(localStorage.getItem("tx_history")) || [];
+function analyze(){
+  let raw = document.getElementById("input").value.toUpperCase();
+  let arr = raw.replace(/[^TX]/g,"").split("");
+  let n = arr.length;
 
-function vibrate(){
-  if(navigator.vibrate) navigator.vibrate(50);
+  if(n < 6){
+    output("⚠️ Cần ít nhất 6 ván để phân tích cầu nâng cao");
+    return;
+  }
+
+  let scores = [];
+  let last = arr[n-1];
+
+  // 1️⃣ BỆT
+  let streak = 1;
+  for(let i=n-1;i>0;i--){
+    if(arr[i]===arr[i-1]) streak++;
+    else break;
+  }
+  if(streak>=3){
+    scores.push({
+      name:`🔥 Bệt ${arr[n-1]==="T"?"TÀI":"XỈU"} (${streak})`,
+      predict:last,
+      score:70 + streak*3
+    });
+  }
+
+  // 2️⃣ ĐẢO 1–1
+  let isAlt=true;
+  for(let i=n-1;i>n-6;i--){
+    if(arr[i]===arr[i-1]) isAlt=false;
+  }
+  if(isAlt){
+    scores.push({
+      name:"⚡ Cầu đảo 1–1",
+      predict:last==="T"?"XỈU":"TÀI",
+      score:72
+    });
+  }
+
+  // 3️⃣ CẦU 2–1 / 3–1
+  let seq = arr.slice(-6).join("");
+  if(/(TTX){1,}/.test(seq) || /(XXT){1,}/.test(seq)){
+    scores.push({
+      name:"🔁 Cầu 2–1",
+      predict:last==="T"?"XỈU":"TÀI",
+      score:74
+    });
+  }
+  if(/(TTTX){1,}/.test(seq) || /(XXXT){1,}/.test(seq)){
+    scores.push({
+      name:"🔁 Cầu 3–1",
+      predict:last==="T"?"XỈU":"TÀI",
+      score:78
+    });
+  }
+
+  // 4️⃣ THỐNG KÊ NGHIÊNG
+  let t = arr.filter(x=>x==="T").length;
+  let x = n - t;
+  scores.push({
+    name:"📊 Thống kê nghiêng",
+    predict: t>x ? "TÀI" : "XỈU",
+    score: 60 + Math.abs(t-x)*2
+  });
+
+  // CHỌN CẦU MẠNH NHẤT
+  scores.sort((a,b)=>b.score-a.score);
+  let best = scores[0];
+
+  let html = `
+  🧠 Cầu mạnh nhất:<br>
+  <b>${best.name}</b><br><br>
+  🔮 Gợi ý ván sau:
+  <b style="color:gold">${best.predict}</b><br>
+  📈 Độ tin cậy: <b>${best.score}%</b><br><br>
+  <hr>
+  <b>So sánh cầu:</b><br>
+  `;
+
+  scores.forEach(s=>{
+    html += `• ${s.name}: ${s.predict} (${s.score}%)<br>`;
+  });
+
+  document.getElementById("output").innerHTML = html;
 }
 
-function sound(){
-  let a = new Audio("https://actions.google.com/sounds/v1/casino/dice_roll.ogg");
-  a.play();
-}
-
-function detectPattern(arr){
-  if(arr.length<4) return "Chưa đủ dữ liệu";
-  let s = arr.slice(0,4).join("");
-  if(s==="TÀITÀITÀITÀI") return "🔥 Bệt TÀI";
-  if(s==="XỈUXỈUXỈUXỈU") return "🔥 Bệt XỈU";
-  if(s==="TÀIXỈUTÀIXỈU"||s==="XỈUTÀIXỈUTÀI") return "⚡ Cầu đảo";
-  return "Ngẫu nhiên";
-}
-
-function roll(){
-  vibrate(); sound();
-
-  let total = Math.floor(Math.random()*11)+3;
-  let res = total>=11 ? "TÀI" : "XỈU";
-
-  history.unshift(res);
-  if(history.length>100) history.pop();
-  localStorage.setItem("tx_history", JSON.stringify(history));
-
-  let tai = history.filter(x=>x==="TÀI").length;
-  let xiu = history.filter(x=>x==="XỈU").length;
-  let pctTai = Math.round(tai/history.length*100);
-  let pctXiu = 100-pctTai;
-
-  document.getElementById("result").innerHTML =
-    `🎲 ${res} (${total})<br>
-     🔮 Dự đoán: <b>${pctTai>pctXiu?"TÀI":"XỈU"}</b>`;
-
-  document.getElementById("pattern").innerText =
-    "🧠 Cầu: " + detectPattern(history);
-
-  document.getElementById("stats").innerText =
-    `TÀI ${pctTai}% | XỈU ${pctXiu}%`;
-
-  document.getElementById("barTai").style.width = pctTai+"%";
-  document.getElementById("barXiu").style.width = pctXiu+"%";
-
-  document.getElementById("history").innerText =
-    "Lịch sử: " + history.slice(0,20).join(" - ");
+function output(txt){
+  document.getElementById("output").innerText = txt;
 }
 </script>
 </body>
