@@ -3,124 +3,130 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SA-MP.VN Casino</title>
+<title>SA-MP.VN Casino Tool</title>
 
 <style>
-body {
-    margin: 0;
-    background: radial-gradient(circle at top, #1b1b1b, #000);
-    font-family: -apple-system, BlinkMacSystemFont;
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont;
+  background:#000;
+  color:#fff;
+  display:flex;
+  justify-content:center;
 }
-
-.casino {
-    width: 92%;
-    max-width: 420px;
-    background: linear-gradient(180deg, #111, #000);
-    border-radius: 20px;
-    padding: 20px;
-    box-shadow: 0 0 30px rgba(255,215,0,0.25);
-    text-align: center;
+.app{
+  width:92%;
+  max-width:420px;
+  margin-top:20px;
+  background:#0b0b0b;
+  border-radius:20px;
+  padding:20px;
+  box-shadow:0 0 30px rgba(255,215,0,.25);
 }
-
-.title {
-    font-size: 24px;
-    font-weight: bold;
-    color: gold;
-    text-shadow: 0 0 10px gold;
+h1{
+  text-align:center;
+  color:gold;
+  text-shadow:0 0 10px gold;
 }
-
-.dice {
-    font-size: 60px;
-    margin: 20px 0;
-    animation: idle 1.5s infinite alternate;
+.btn{
+  width:100%;
+  padding:14px;
+  margin-top:12px;
+  border:none;
+  border-radius:14px;
+  background:linear-gradient(90deg,gold,orange);
+  font-size:18px;
+  font-weight:bold;
 }
-
-@keyframes idle {
-    from { transform: scale(1); }
-    to { transform: scale(1.08); }
+.card{
+  margin-top:16px;
+  padding:14px;
+  background:#111;
+  border-radius:14px;
 }
-
-.result {
-    font-size: 28px;
-    font-weight: bold;
-    margin: 10px 0;
+.bar{
+  height:14px;
+  border-radius:10px;
+  margin-top:6px;
 }
-
-.btn {
-    width: 100%;
-    padding: 14px;
-    margin-top: 15px;
-    border-radius: 14px;
-    border: none;
-    background: linear-gradient(90deg, gold, orange);
-    font-size: 18px;
-    font-weight: bold;
-    color: #000;
-}
-
-.history {
-    margin-top: 15px;
-    font-size: 14px;
-    opacity: 0.85;
-}
+.tai{background:gold;}
+.xiu{background:#38bdf8;}
+.small{font-size:13px;opacity:.85}
 </style>
 </head>
 
 <body>
-<div class="casino">
-    <div class="title">🎰 SA-MP.VN CASINO</div>
-    <div class="dice">🎲</div>
-    <div class="result" id="result">Nhấn LẮC</div>
-    <button class="btn" onclick="roll()">LẮC</button>
-    <div class="history" id="history"></div>
+<div class="app">
+<h1>🎰 SA-MP.VN CASINO</h1>
+
+<button class="btn" onclick="roll()">LẮC</button>
+
+<div class="card" id="result">Nhấn LẮC để bắt đầu</div>
+
+<div class="card small" id="pattern"></div>
+
+<div class="card">
+<b>📊 Thống kê 100 ván</b>
+<div class="small" id="stats"></div>
+<div class="bar tai" id="barTai"></div>
+<div class="bar xiu" id="barXiu"></div>
+</div>
+
+<div class="card small" id="history"></div>
 </div>
 
 <script>
-let history = [];
+let history = JSON.parse(localStorage.getItem("tx_history")) || [];
 
-function detectPattern(arr) {
-    if (arr.length < 4) return "Chưa đủ dữ liệu";
-
-    let last = arr.slice(0,4).join("");
-
-    if (last === "TÀITÀITÀITÀI") return "Bệt TÀI 🔥";
-    if (last === "XỈUXỈUXỈUXỈU") return "Bệt XỈU 🔥";
-    if (last === "TÀIXỈUTÀIXỈU") return "Cầu đảo ⚡";
-    if (last === "XỈUTÀIXỈUTÀI") return "Cầu đảo ⚡";
-
-    return "Cầu ngẫu nhiên";
+function vibrate(){
+  if(navigator.vibrate) navigator.vibrate(50);
 }
 
-function roll() {
-    let total = Math.floor(Math.random() * 11) + 3;
-    let res = total >= 11 ? "TÀI" : "XỈU";
+function sound(){
+  let a = new Audio("https://actions.google.com/sounds/v1/casino/dice_roll.ogg");
+  a.play();
+}
 
-    history.unshift(res);
-    if (history.length > 20) history.pop();
+function detectPattern(arr){
+  if(arr.length<4) return "Chưa đủ dữ liệu";
+  let s = arr.slice(0,4).join("");
+  if(s==="TÀITÀITÀITÀI") return "🔥 Bệt TÀI";
+  if(s==="XỈUXỈUXỈUXỈU") return "🔥 Bệt XỈU";
+  if(s==="TÀIXỈUTÀIXỈU"||s==="XỈUTÀIXỈUTÀI") return "⚡ Cầu đảo";
+  return "Ngẫu nhiên";
+}
 
-    let tai = history.filter(x => x === "TÀI").length;
-    let xiu = history.filter(x => x === "XỈU").length;
-    let totalRoll = history.length;
+function roll(){
+  vibrate(); sound();
 
-    let taiPct = ((tai / totalRoll) * 100).toFixed(0);
-    let xiuPct = ((xiu / totalRoll) * 100).toFixed(0);
+  let total = Math.floor(Math.random()*11)+3;
+  let res = total>=11 ? "TÀI" : "XỈU";
 
-    let predict = taiPct > xiuPct ? "TÀI" : "XỈU";
-    let pattern = detectPattern(history);
+  history.unshift(res);
+  if(history.length>100) history.pop();
+  localStorage.setItem("tx_history", JSON.stringify(history));
 
-    document.getElementById("result").innerHTML =
-        `${res} (${total})`;
+  let tai = history.filter(x=>x==="TÀI").length;
+  let xiu = history.filter(x=>x==="XỈU").length;
+  let pctTai = Math.round(tai/history.length*100);
+  let pctXiu = 100-pctTai;
 
-    document.getElementById("history").innerHTML = `
-        Lịch sử: ${history.slice(0,8).join(" - ")}<br>
-        📊 TÀI ${taiPct}% | XỈU ${xiuPct}%<br>
-        🧠 Cầu: ${pattern}<br>
-        🔮 Dự đoán ván sau: <b style="color:gold">${predict}</b>
-    `;
+  document.getElementById("result").innerHTML =
+    `🎲 ${res} (${total})<br>
+     🔮 Dự đoán: <b>${pctTai>pctXiu?"TÀI":"XỈU"}</b>`;
+
+  document.getElementById("pattern").innerText =
+    "🧠 Cầu: " + detectPattern(history);
+
+  document.getElementById("stats").innerText =
+    `TÀI ${pctTai}% | XỈU ${pctXiu}%`;
+
+  document.getElementById("barTai").style.width = pctTai+"%";
+  document.getElementById("barXiu").style.width = pctXiu+"%";
+
+  document.getElementById("history").innerText =
+    "Lịch sử: " + history.slice(0,20).join(" - ");
 }
 </script>
+</body>
+</html>
