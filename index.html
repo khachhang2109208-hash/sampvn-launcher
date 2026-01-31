@@ -3,96 +3,124 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SA-MP.VN Tool</title>
+<title>SA-MP.VN Casino</title>
 
 <style>
-body{
-  margin:0;
-  font-family:-apple-system,BlinkMacSystemFont;
-  background:#020617;
-  color:white;
+body {
+    margin: 0;
+    background: radial-gradient(circle at top, #1b1b1b, #000);
+    font-family: -apple-system, BlinkMacSystemFont;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
-.app{
-  padding:20px;
+
+.casino {
+    width: 92%;
+    max-width: 420px;
+    background: linear-gradient(180deg, #111, #000);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 0 30px rgba(255,215,0,0.25);
+    text-align: center;
 }
-h1{
-  text-align:center;
-  color:#38bdf8;
+
+.title {
+    font-size: 24px;
+    font-weight: bold;
+    color: gold;
+    text-shadow: 0 0 10px gold;
 }
-.card{
-  background:#020617;
-  border:1px solid #1e293b;
-  border-radius:16px;
-  padding:16px;
-  margin-bottom:16px;
+
+.dice {
+    font-size: 60px;
+    margin: 20px 0;
+    animation: idle 1.5s infinite alternate;
 }
-.btn{
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:12px;
-  background:#38bdf8;
-  color:#020617;
-  font-weight:600;
-  margin-top:10px;
+
+@keyframes idle {
+    from { transform: scale(1); }
+    to { transform: scale(1.08); }
 }
-.result{
-  font-size:22px;
-  text-align:center;
-  margin-top:10px;
+
+.result {
+    font-size: 28px;
+    font-weight: bold;
+    margin: 10px 0;
 }
-.history{
-  font-size:14px;
-  margin-top:8px;
-  opacity:.8;
+
+.btn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 15px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(90deg, gold, orange);
+    font-size: 18px;
+    font-weight: bold;
+    color: #000;
+}
+
+.history {
+    margin-top: 15px;
+    font-size: 14px;
+    opacity: 0.85;
 }
 </style>
 </head>
 
 <body>
-<div class="app">
-<h1>SA-MP.VN TOOL</h1>
-
-<div class="card">
-<b>🎲 TÀI XỈU DEMO</b>
-<button class="btn" onclick="roll()">LẮC</button>
-<div class="result" id="result">---</div>
-<div class="history" id="history"></div>
-</div>
-
-<div class="card">
-<b>📊 THỐNG KÊ</b>
-<div id="stats">Chưa có dữ liệu</div>
-</div>
-
+<div class="casino">
+    <div class="title">🎰 SA-MP.VN CASINO</div>
+    <div class="dice">🎲</div>
+    <div class="result" id="result">Nhấn LẮC</div>
+    <button class="btn" onclick="roll()">LẮC</button>
+    <div class="history" id="history"></div>
 </div>
 
 <script>
 let history = [];
-let tai = 0;
-let xiu = 0;
 
-function roll(){
-  let a = Math.floor(Math.random()*6)+1;
-  let b = Math.floor(Math.random()*6)+1;
-  let c = Math.floor(Math.random()*6)+1;
-  let sum = a+b+c;
-  let kq = sum >= 11 ? "TÀI" : "XỈU";
+function detectPattern(arr) {
+    if (arr.length < 4) return "Chưa đủ dữ liệu";
 
-  history.unshift(kq);
-  if(kq==="TÀI") tai++; else xiu++;
+    let last = arr.slice(0,4).join("");
 
-  document.getElementById("result").innerText =
-    a+" + "+b+" + "+c+" = "+sum+" → "+kq;
+    if (last === "TÀITÀITÀITÀI") return "Bệt TÀI 🔥";
+    if (last === "XỈUXỈUXỈUXỈU") return "Bệt XỈU 🔥";
+    if (last === "TÀIXỈUTÀIXỈU") return "Cầu đảo ⚡";
+    if (last === "XỈUTÀIXỈUTÀI") return "Cầu đảo ⚡";
 
-  document.getElementById("history").innerText =
-    "Lịch sử: " + history.slice(0,10).join(" | ");
+    return "Cầu ngẫu nhiên";
+}
 
-  let total = tai+xiu;
-  document.getElementById("stats").innerText =
-    "TÀI: "+tai+" ("+Math.round(tai/total*100)+"%) | " +
-    "XỈU: "+xiu+" ("+Math.round(xiu/total*100)+"%)";
+function roll() {
+    let total = Math.floor(Math.random() * 11) + 3;
+    let res = total >= 11 ? "TÀI" : "XỈU";
+
+    history.unshift(res);
+    if (history.length > 20) history.pop();
+
+    let tai = history.filter(x => x === "TÀI").length;
+    let xiu = history.filter(x => x === "XỈU").length;
+    let totalRoll = history.length;
+
+    let taiPct = ((tai / totalRoll) * 100).toFixed(0);
+    let xiuPct = ((xiu / totalRoll) * 100).toFixed(0);
+
+    let predict = taiPct > xiuPct ? "TÀI" : "XỈU";
+    let pattern = detectPattern(history);
+
+    document.getElementById("result").innerHTML =
+        `${res} (${total})`;
+
+    document.getElementById("history").innerHTML = `
+        Lịch sử: ${history.slice(0,8).join(" - ")}<br>
+        📊 TÀI ${taiPct}% | XỈU ${xiuPct}%<br>
+        🧠 Cầu: ${pattern}<br>
+        🔮 Dự đoán ván sau: <b style="color:gold">${predict}</b>
+    `;
 }
 </script>
-</body>
-</html>
