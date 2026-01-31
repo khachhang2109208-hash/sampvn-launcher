@@ -57,7 +57,7 @@ input{
 <input id="input" placeholder="VD: T X T T X T T X">
 
 <button class="btn" onclick="analyze()">PHÂN TÍCH</button>
-
+<button class="btn" onclick="toggleMusic()">🎵 BẬT / TẮT NHẠC</button>
 <div class="card" id="output">Chưa có dữ liệu</div>
 </div>
 
@@ -151,6 +151,19 @@ function analyze(){
 
 function output(txt){
   document.getElementById("output").innerText = txt;
+}
+  let music = new Audio("https://cdn.pixabay.com/audio/2022/03/15/audio_4c8b9a7b8a.mp3");
+music.loop = true;
+music.volume = 0.4;
+
+function toggleMusic(){
+  if(music.paused){
+    music.play();
+    alert("🎵 Đã bật nhạc");
+  }else{
+    music.pause();
+    alert("🔇 Đã tắt nhạc");
+  }
 }
 </script>
 </body>
