@@ -1,91 +1,98 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SA-MP.VN Launcher</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SA-MP.VN Tool</title>
 
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0f172a">
-
-  <style>
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      background: linear-gradient(180deg,#020617,#020617);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-    .app {
-      width: 92%;
-      max-width: 420px;
-      background: #020617;
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 0 40px rgba(0,0,0,.7);
-    }
-    h1 {
-      text-align: center;
-      margin: 0 0 10px;
-      color: #38bdf8;
-    }
-    .server {
-      background: #020617;
-      border: 1px solid #1e293b;
-      border-radius: 14px;
-      padding: 14px;
-      margin-bottom: 14px;
-    }
-    .btn {
-      display: block;
-      width: 100%;
-      padding: 14px;
-      margin-top: 10px;
-      border-radius: 12px;
-      border: none;
-      background: #38bdf8;
-      color: #020617;
-      font-size: 16px;
-      font-weight: 600;
-    }
-    .btn.secondary {
-      background: #020617;
-      color: #38bdf8;
-      border: 1px solid #38bdf8;
-    }
-    footer {
-      text-align: center;
-      font-size: 12px;
-      opacity: .6;
-      margin-top: 10px;
-    }
-  </style>
+<style>
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont;
+  background:#020617;
+  color:white;
+}
+.app{
+  padding:20px;
+}
+h1{
+  text-align:center;
+  color:#38bdf8;
+}
+.card{
+  background:#020617;
+  border:1px solid #1e293b;
+  border-radius:16px;
+  padding:16px;
+  margin-bottom:16px;
+}
+.btn{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  background:#38bdf8;
+  color:#020617;
+  font-weight:600;
+  margin-top:10px;
+}
+.result{
+  font-size:22px;
+  text-align:center;
+  margin-top:10px;
+}
+.history{
+  font-size:14px;
+  margin-top:8px;
+  opacity:.8;
+}
+</style>
 </head>
 
 <body>
-  <div class="app">
-    <h1>SA-MP.VN</h1>
+<div class="app">
+<h1>SA-MP.VN TOOL</h1>
 
-    <div class="server">
-      <b>Server:</b> sa-mp.vn<br>
-      <b>Status:</b> 🟢 Online<br>
-      <b>Players:</b> 999/1000
-      <button class="btn" onclick="alert('iOS không cho mở client trực tiếp 😅')">
-        PLAY
-      </button>
-    </div>
+<div class="card">
+<b>🎲 TÀI XỈU DEMO</b>
+<button class="btn" onclick="roll()">LẮC</button>
+<div class="result" id="result">---</div>
+<div class="history" id="history"></div>
+</div>
 
-    <button class="btn secondary">📊 Thống kê</button>
-    <button class="btn secondary">🎲 Tài Xỉu</button>
-    <button class="btn secondary">⚙️ Cài đặt</button>
+<div class="card">
+<b>📊 THỐNG KÊ</b>
+<div id="stats">Chưa có dữ liệu</div>
+</div>
 
-    <footer>
-      Launcher PWA • iOS 26.1
-    </footer>
-  </div>
+</div>
+
+<script>
+let history = [];
+let tai = 0;
+let xiu = 0;
+
+function roll(){
+  let a = Math.floor(Math.random()*6)+1;
+  let b = Math.floor(Math.random()*6)+1;
+  let c = Math.floor(Math.random()*6)+1;
+  let sum = a+b+c;
+  let kq = sum >= 11 ? "TÀI" : "XỈU";
+
+  history.unshift(kq);
+  if(kq==="TÀI") tai++; else xiu++;
+
+  document.getElementById("result").innerText =
+    a+" + "+b+" + "+c+" = "+sum+" → "+kq;
+
+  document.getElementById("history").innerText =
+    "Lịch sử: " + history.slice(0,10).join(" | ");
+
+  let total = tai+xiu;
+  document.getElementById("stats").innerText =
+    "TÀI: "+tai+" ("+Math.round(tai/total*100)+"%) | " +
+    "XỈU: "+xiu+" ("+Math.round(xiu/total*100)+"%)";
+}
+</script>
 </body>
 </html>
