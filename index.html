@@ -2,143 +2,259 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>AI Tài Xỉu – Cấp 4</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body{
-  margin:0;
-  background:radial-gradient(circle at top,#1c2045,#05060d);
-  color:#fff;font-family:system-ui;text-align:center
-}
-h1{color:#ffd700;text-shadow:0 0 14px #ff9800}
-button{
-  padding:14px 22px;margin:8px;font-size:16px;border:none;border-radius:16px;
-  font-weight:600;box-shadow:0 8px 22px rgba(0,0,0,.6)
-}
-.tai{background:linear-gradient(45deg,#ff5722,#ff9800)}
-.xiu{background:linear-gradient(45deg,#03a9f4,#00e5ff)}
-.panel{background:rgba(15,20,45,.92);border-radius:20px;padding:14px;margin:10px}
-.big{font-size:30px;font-weight:700}
-.small{font-size:14px;opacity:.85}
-.good{color:#7CFF00}.mid{color:#ffd54f}.bad{color:#ff5252}
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Tài Xỉu Cấp 10 – Neon</title>
 
-/* 🎲 XÍ NGẦU 4D */
-.dice-area{display:flex;justify-content:center;gap:18px;margin:16px 0;perspective:800px}
+<style>
+:root{
+ --c1:#00e5ff; --c2:#7c4dff; --c3:#ffca28; --glass:rgba(255,255,255,.12);
+}
+*{box-sizing:border-box}
+body{
+ margin:0; min-height:100vh; display:flex; justify-content:center; align-items:center;
+ background:linear-gradient(120deg,#020024,#090979,#00d4ff);
+ background-size:400% 400%; animation:bg 14s ease infinite;
+ font-family:system-ui,-apple-system,Segoe UI;
+ color:#fff;
+}
+@keyframes bg{
+ 0%{background-position:0% 50%}
+ 50%{background-position:100% 50%}
+ 100%{background-position:0% 50%}
+}
+.app{
+ width:420px; padding:18px; border-radius:28px;
+ background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.04));
+ backdrop-filter: blur(18px);
+ box-shadow:0 0 80px #00e5ff55, inset 0 0 0 1px #ffffff22;
+}
+h1{
+ text-align:center; margin:6px 0 10px;
+ background:linear-gradient(90deg,var(--c1),var(--c2),var(--c3));
+ -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+ text-shadow:0 0 25px #00e5ff88;
+}
+.row{display:flex; gap:10px; margin:8px 0}
+.btn{
+ flex:1; padding:14px; border:none; border-radius:18px;
+ font-size:16px; font-weight:900; cursor:pointer;
+ color:#000; transition:.2s;
+ box-shadow:0 10px 25px #0006, inset 0 0 0 1px #fff6;
+}
+.btn:hover{transform:translateY(-2px)}
+.tai{background:linear-gradient(135deg,#ff9100,#ffd740)}
+.xiu{background:linear-gradient(135deg,#29b6f6,#00e5ff)}
+.safe{background:linear-gradient(135deg,#00e676,#69f0ae)}
+.risk{background:linear-gradient(135deg,#ff5252,#ff867f)}
+.card{
+ margin-top:10px; padding:14px; border-radius:20px;
+ background:var(--glass); box-shadow:inset 0 0 0 1px #ffffff22;
+}
+.neon{color:var(--c1); text-shadow:0 0 18px var(--c1)}
+.good{color:#69f0ae}
+.warn{color:#ff5252}
+small{opacity:.9}
+
+/* Dice */
+.dice-wrap{display:flex; gap:12px; justify-content:center; margin:8px 0}
 .dice{
-  width:64px;height:64px;border-radius:14px;background:linear-gradient(135deg,#fff,#ddd);
-  color:#000;font-size:28px;font-weight:700;display:flex;align-items:center;justify-content:center;
-  box-shadow:inset 0 0 8px rgba(0,0,0,.3),0 14px 30px rgba(0,0,0,.7)
+ width:58px; height:58px; border-radius:14px;
+ background:linear-gradient(135deg,#fff,#ddd);
+ display:flex; align-items:center; justify-content:center;
+ font-size:26px; font-weight:900; color:#000;
+ box-shadow:0 12px 28px #0008;
 }
-@keyframes shake{
-  0%{transform:rotateX(0) rotateY(0)}
-  25%{transform:rotateX(180deg) rotateY(90deg)}
-  50%{transform:rotateX(360deg) rotateY(180deg)}
-  75%{transform:rotateX(540deg) rotateY(360deg)}
-  100%{transform:rotateX(720deg) rotateY(540deg)}
+.roll{animation:roll .9s ease}
+@keyframes roll{
+ 0%{transform:rotateX(0) rotateY(0)}
+ 50%{transform:rotateX(180deg) rotateY(180deg)}
+ 100%{transform:rotateX(360deg) rotateY(360deg)}
 }
+
+/* Chart */
+canvas{width:100%; height:120px}
+
+/* Music */
+.music{display:flex; align-items:center; gap:8px; justify-content:center}
 </style>
 </head>
 
 <body>
-<h1>🤖 AI TÀI XỈU – CẤP 4</h1>
+<div class="app">
+<h1>🤖 AI TÀI XỈU – CẤP 10</h1>
 
-<button class="tai" onclick="add('T')">🔥 TÀI</button>
-<button class="xiu" onclick="add('X')">❄️ XỈU</button>
-
-<div class="panel" id="history">Cầu: trống</div>
-
-<div class="dice-area">
-  <div class="dice" id="dice1">?</div>
-  <div class="dice" id="dice2">?</div>
-  <div class="dice" id="dice3">?</div>
+<div class="row">
+ <button class="btn safe" onclick="setMode('safe')">🛡 SAFE</button>
+ <button class="btn risk" onclick="setMode('risk')">⚡ RISK</button>
 </div>
 
-<div class="panel">
-  <div class="small">🔮 Dự đoán ván sau (AI Cấp 4)</div>
-  <div id="predict" class="big">—</div>
-  <div id="percent" class="big">—</div>
-  <div id="status" class="small">Đang tải AI…</div>
+<div class="dice-wrap">
+ <div class="dice" id="d1">🎲</div>
+ <div class="dice" id="d2">🎲</div>
+ <div class="dice" id="d3">🎲</div>
 </div>
+
+<div class="row">
+ <button class="btn tai" onclick="add(1)">🔥 TÀI</button>
+ <button class="btn xiu" onclick="add(0)">❄️ XỈU</button>
+</div>
+
+<div class="card" id="out">⏳ Nhập kết quả để AI phân tích…</div>
+
+<div class="card">
+ <b>📈 Win-rate (mô phỏng)</b>
+ <canvas id="chart" width="380" height="120"></canvas>
+</div>
+
+<div class="card music">
+ <button class="btn" style="flex:0 0 auto" onclick="toggleMusic()">🎵</button>
+ <small id="musicStatus">Nhạc: Tắt</small>
+</div>
+
+<div class="card">
+ <small id="report">—</small>
+</div>
+</div>
+
+<audio id="bgm" loop>
+ <source src="https://cdn.pixabay.com/audio/2023/03/14/audio_3b5b8d4a0f.mp3" type="audio/mpeg">
+</audio>
 
 <script>
-// =======================
-// 🎲 XÍ NGẦU
-// =======================
-function rollDice(){
-  let d=[dice1,dice2,dice3];
-  d.forEach(x=>{x.style.animation="none";x.offsetHeight;x.style.animation="shake 1.1s ease-in-out";});
-  setTimeout(()=>d.forEach(x=>x.innerText=Math.ceil(Math.random()*6)),900);
+/* ===== DATA ===== */
+let history=JSON.parse(localStorage.getItem("tx_h")||"[]");
+let memory =JSON.parse(localStorage.getItem("tx_m")||"{}");
+let brain  =JSON.parse(localStorage.getItem("tx_b")||JSON.stringify({p:1,s:1,a:1}));
+let stats  =JSON.parse(localStorage.getItem("tx_s")||JSON.stringify({w:0,l:0,curve:[],peak:0,dd:0}));
+let mode="safe", lastPred=null;
+
+/* ===== SAVE ===== */
+const save=()=>{
+ localStorage.setItem("tx_h",JSON.stringify(history));
+ localStorage.setItem("tx_m",JSON.stringify(memory));
+ localStorage.setItem("tx_b",JSON.stringify(brain));
+ localStorage.setItem("tx_s",JSON.stringify(stats));
+};
+
+/* ===== MUSIC ===== */
+const bgm=document.getElementById("bgm");
+function toggleMusic(){
+ if(bgm.paused){ bgm.play(); musicStatus.textContent="Nhạc: Bật"; }
+ else{ bgm.pause(); musicStatus.textContent="Nhạc: Tắt"; }
 }
 
-// =======================
-// 📊 LỊCH SỬ
-// =======================
-let h=[];
+/* ===== MODE ===== */
+function setMode(m){ mode=m; analyze(); }
 
-// =======================
-// 🧠 AI CẤP 4 – LOAD DATA
-// =======================
-let AI4=null;
-fetch("stats.json")
-  .then(r=>r.json())
-  .then(d=>{
-    AI4=d;
-    document.getElementById("status").innerText="AI sẵn sàng";
-  })
-  .catch(()=>{
-    document.getElementById("status").innerText="❌ Không tải được stats.json";
-  });
-
-// =======================
-// 🧠 AI CẤP 4 – PHÂN TÍCH
-// =======================
-function runAI4(history){
-  if(!AI4 || history.length<10){
-    return {pick:"—",pct:0,status:"Cần ≥ 10 ván"};
-  }
-
-  // chuỗi 10 ván gần nhất
-  let seq = history.slice(-10).map(v=>v==="T"?1:0).join("");
-  let row = AI4.find(r=>r.pattern===seq);
-  if(!row){
-    return {pick:"—",pct:0,status:"🚫 NO BET (không có mẫu)"};
-  }
-
-  let pT=row.p_tai, pX=row.p_xiu;
-  let pick=pT>=pX?"T":"X";
-  let conf=Math.max(pT,pX);
-
-  // Filter nhiễu
-  let flips=0;
-  for(let i=1;i<history.length;i++) if(history[i]!==history[i-1]) flips++;
-  let noise=flips/history.length;
-  if(noise>0.6) conf*=0.8;
-
-  if(conf<0.55){
-    return {pick:"—",pct:Math.round(conf*100),status:"🚫 NO BET"};
-  }
-
-  let pct=Math.min(78,Math.round(conf*100));
-  let status=pct>=68?"🟢 Cầu đẹp":pct>=60?"🟡 Cầu trung bình":"🔴 Cầu nguy hiểm";
-  return {pick,pct,status};
-}
-
-// =======================
-// ➕ NHẬP VÁN
-// =======================
+/* ===== INPUT ===== */
 function add(v){
-  h.push(v); if(h.length>120) h.shift();
-  document.getElementById("history").innerText="Cầu: "+h.join(" ");
-  rollDice();
-
-  let r=runAI4(h);
-  document.getElementById("predict").innerText =
-    r.pick==="T"?"🔥 TÀI":r.pick==="X"?"❄️ XỈU":"—";
-  document.getElementById("percent").innerText = r.pct? r.pct+"%":"—";
-  let s=document.getElementById("status");
-  s.innerText=r.status;
-  s.className="small "+(r.pct>=68?"good":r.pct>=60?"mid":"bad");
+ rollDice();
+ if(history.length>=6){
+  const p=history.slice(-6).join("");
+  if(!memory[p]) memory[p]={t:0,x:0};
+  v?memory[p].t++:memory[p].x++;
+  if(lastPred!==null){
+    const d=(lastPred===v)?0.03:-0.05;
+    brain.p=clamp(brain.p+d,.6,1.6);
+    brain.s=clamp(brain.s+d,.6,1.6);
+    brain.a=clamp(brain.a+d,.6,1.6);
+    (lastPred===v)?stats.w++:stats.l++;
+    const wr=Math.round(100*stats.w/Math.max(1,stats.w+stats.l));
+    stats.curve.push(wr); if(stats.curve.length>40) stats.curve.shift();
+    stats.peak=Math.max(stats.peak,wr);
+    stats.dd=Math.max(stats.dd,stats.peak-wr);
+  }
+ }
+ history.push(v); if(history.length>80) history.shift();
+ lastPred=null; save(); analyze(); draw(); report();
 }
+
+/* ===== UTILS ===== */
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function entropy(a){
+ let t=0,x=0; a.forEach(v=>v?t++:x++);
+ const n=a.length, pt=t/n, px=x/n;
+ let e=0; if(pt>0)e-=pt*Math.log2(pt); if(px>0)e-=px*Math.log2(px);
+ return e;
+}
+
+/* ===== MONTE CARLO ===== */
+function mc(p,N=1000){let w=0; for(let i=0;i<N;i++) if(Math.random()<p) w++; return w/N;}
+
+/* ===== ENSEMBLE ===== */
+function scores(){
+ let t=0,x=0;
+ const p=history.slice(-6).join("");
+ if(memory[p]){ t+=memory[p].t*brain.p; x+=memory[p].x*brain.p; }
+ let s=1; for(let i=history.length-1;i>0;i--){ if(history[i]===history[i-1])s++; else break; }
+ if(s>=3){ history.at(-1)?t+=1.2*brain.s:x+=1.2*brain.s; }
+ let alt=true; for(let i=history.length-1;i>history.length-6;i--){ if(history[i]===history[i-1])alt=false; }
+ if(alt){ history.at(-1)?x+=brain.a:t+=brain.a; }
+ const sum=t+x||1; const p0=t/sum; const m=mc(p0);
+ m>=.5?t+=.3:x+=.3;
+ return {t,x,s,m};
+}
+
+/* ===== STOP ===== */
+function stop(){
+ const e=entropy(history.slice(-12));
+ if(e>.95) return "CẦU LOẠN";
+ const a=entropy(history.slice(-12,-6)), b=entropy(history.slice(-6));
+ if(Math.abs(b-a)>.3) return "CẦU GÃY";
+ if(stats.dd>=15) return "DRAWDOWN CAO";
+ return "";
+}
+
+/* ===== CORE ===== */
+function analyze(){
+ if(history.length<6){ out("⚠️ Cần ≥ 6 ván"); return; }
+ const st=stop(); if(st){ out(`🛑 <b class="warn">${st}</b> → ĐỨNG NGOÀI`); return; }
+ const {t,x,s,m}=scores(); const sum=t+x; if(!sum){ out("🟡 Chưa đủ tín hiệu"); return; }
+ const pT=Math.round(t/sum*100), pX=100-pT;
+ const pick=pT>=pX?1:0, conf=Math.max(pT,pX);
+ const lim=(mode==="safe")?64:54;
+ if(conf<lim){ out(`🟡 Tin cậy ${conf}% → ĐỨNG NGOÀI`); return; }
+ lastPred=pick;
+ out(`
+ <b class="neon">AI CẤP 10 – ENSEMBLE</b><br><br>
+ 🔮 Dự đoán: <b class="good">${pick?'🔥 TÀI':'❄️ XỈU'}</b><br>
+ 📊 Tin cậy: <b>${conf}%</b> | 🧪 MC: ${(m*100).toFixed(1)}%<br>
+ 🧠 Trọng số: P=${brain.p.toFixed(2)} S=${brain.s.toFixed(2)} A=${brain.a.toFixed(2)}<br>
+ 📌 Chuỗi: ${s} | ⚙️ ${mode.toUpperCase()}
+ `);
+}
+
+/* ===== UI ===== */
+function out(t){ outDiv.innerHTML=t; }
+const outDiv=document.getElementById("out");
+function rollDice(){
+ ["d1","d2","d3"].forEach(id=>{
+  const d=document.getElementById(id);
+  d.classList.remove("roll"); void d.offsetWidth;
+  d.classList.add("roll");
+  d.textContent=Math.floor(Math.random()*6)+1;
+ });
+}
+function draw(){
+ const c=chart, g=c.getContext("2d");
+ g.clearRect(0,0,c.width,c.height);
+ if(!stats.curve.length) return;
+ g.strokeStyle="#00e5ff"; g.lineWidth=2; g.beginPath();
+ stats.curve.forEach((v,i)=>{
+  const x=i*(c.width/(stats.curve.length-1||1));
+  const y=c.height-(v/100)*c.height;
+  i?g.lineTo(x,y):g.moveTo(x,y);
+ });
+ g.stroke();
+}
+function report(){
+ const t=stats.w+stats.l;
+ const wr=t?Math.round(100*stats.w/t):0;
+ reportDiv.innerHTML=`Win-rate: <b>${wr}%</b> • Ván: ${t} • Max DD: ${stats.dd}%`;
+}
+const reportDiv=document.getElementById("report");
+
+if(history.length>=6){ analyze(); draw(); report(); }
 </script>
 </body>
 </html>
